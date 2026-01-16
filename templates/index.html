@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal AI Assistant with Vision & Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .hero {
+            max-width: 800px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+            max-width: 1000px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cta-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 1.2rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .cta-button.secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Chat Container Styles */
+        .chat-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            background: white;
+        }
+
+        .chat-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-title h2 {
+            font-size: 1.5rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .message-assistant {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .message-user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .image-preview {
+            max-width: 300px;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .chart-container {
+            margin-top: 1rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 70%;
+        }
+
+        .chart-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .input-container {
+            padding: 1.5rem 2rem;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .image-upload-btn {
+            background: #f0f0f0;
+            color: #667eea;
+            border: 2px solid #e0e0e0;
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .image-upload-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .selected-image-preview {
+            display: none;
+            max-width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .selected-image-preview.show {
+            display: block;
+        }
+
+        .selected-image-preview img {
+            width: 100%;
+            height: auto;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 20px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+        }
+
+        .dashboard-container.active {
+            display: block;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-title h2 {
+            font-size: 2rem;
+        }
+
+        .dashboard-controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .generate-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: auto;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .dashboard-content {
+            padding: 2rem;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .insights-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .insights-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .insights-section p {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-card h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-card p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .message-content, .chart-container {
+                max-width: 90%;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .input-row {
+                flex-wrap: wrap;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div class="home-container" id="homePage">
+        <div class="hero">
+            <h1>🤖 Personal AI Assistant</h1>
+            <p>Your intelligent companion with vision capabilities for tracking habits, analyzing patterns, and gaining insights</p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Track Anything</h3>
+                    <p>Water, expenses, mood, sleep, nutrition</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3>Vision Support</h3>
+                    <p>Upload food images for nutrition tracking</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Find Patterns</h3>
+                    <p>Discover correlations in your data</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>AI Dashboard</h3>
+                    <p>Smart visualizations and insights</p>
+                </div>
+            </div>
+            
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="startChat()">💬 Start Chatting</button>
+                <button class="cta-button secondary" onclick="openDashboard()">📊 View Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatPage">
+        <div class="chat-header">
+            <div class="chat-title">
+                <h2>💬 Chat Assistant</h2>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span>📚 Tables:</span>
+                    <span class="stat-badge" id="tableCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>🔢 API Calls:</span>
+                    <span class="stat-badge" id="apiCount">0</span>
+                </div>
+                <button class="back-button" onclick="goHome()">← Home</button>
+            </div>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message message-assistant">
+                <div class="message-content">
+👋 Hi! I'm your personal assistant with vision capabilities. 
+
+I can help you:
+• Track habits and activities
+• Analyze images (food, objects, etc.)
+• Find patterns in your data
+• Create visualizations
+
+Upload an image or just type your message!</div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="selected-image-preview" id="imagePreview">
+                <img id="previewImg" src="" alt="Preview">
+                <button class="remove-image-btn" onclick="removeImage()">×</button>
+            </div>
+            <div class="input-row">
+                <input 
+                    type="text" 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your message..." 
+                    onkeypress="handleKeyPress(event)"
+                >
+                <input 
+                    type="file" 
+                    id="imageInput" 
+                    accept="image/*" 
+                    onchange="handleImageSelect(event)"
+                >
+                <label for="imageInput" class="image-upload-btn">
+                    📸 Image
+                </label>
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container" id="dashboardPage">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h2>📊 AI-Powered Dashboard</h2>
+                <button class="back-button" onclick="goHome()">← Home</button>
+            </div>
+
+            <div class="dashboard-controls">
+                <div class="control-group">
+                    <label>Select Table</label>
+                    <select id="tableSelect" style="width: 200px;">
+                        <option value="">Loading tables...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="control-group">
+                    <label>End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button class="generate-btn" id="generateBtn" onclick="generateDashboard()">
+                    Generate Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-content" id="dashboardContent">
+            <div class="empty-state">
+                <h3>👆 Select a table and date range to get started</h3>
+                <p>Choose from your tracked data and let AI analyze patterns for you</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+        let selectedImageData = null;
+
+        function startChat() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('chatPage').classList.add('active');
+            updateStats();
+            document.getElementById('messageInput').focus();
+        }
+
+        function openDashboard() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('dashboardPage').classList.add('active');
+            loadTables();
+            setDefaultDates();
+        }
+
+        function goHome() {
+            document.getElementById('chatPage').classList.remove('active');
+            document.getElementById('dashboardPage').classList.remove('active');
+            document.getElementById('homePage').style.display = 'flex';
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            document.getElementById('endDate').valueAsDate = today;
+            document.getElementById('startDate').valueAsDate = thirtyDaysAgo;
+        }
+
+        async function loadTables() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                const select = document.getElementById('tableSelect');
+                select.innerHTML = '';
+                
+                if (data.tables && data.tables.length > 0) {
+                    data.tables.forEach(table => {
+                        const option = document.createElement('option');
+                        option.value = table;
+                        option.textContent = table;
+                        select.appendChild(option);
+                    });
+                } else {
+                    select.innerHTML = '<option value="">No tables available</option>';
+                }
+            } catch (error) {
+                console.error('Error loading tables:', error);
+            }
+        }
+
+        async function generateDashboard() {
+            const table = document.getElementById('tableSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!table || !startDate || !endDate) {
+                alert('Please select table and date range');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            const contentDiv = document.getElementById('dashboardContent');
+            contentDiv.innerHTML = '<div class="empty-state"><h3>🤖 AI is analyzing your data...</h3></div>';
+
+            try {
+                const response = await fetch('/dashboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        table: table,
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    contentDiv.innerHTML = `<div class="empty-state"><h3>⚠️ ${data.error}</h3></div>`;
+                    return;
+                }
+
+                // Render dashboard
+                let html = '';
+
+                // Summary Section
+                if (data.summary) {
+                    html += `
+                        <div class="summary-section">
+                            <h2 style="margin-bottom: 1.5rem;">📋 Summary</h2>
+                            <div class="summary-stats">
+                                <div class="stat-card">
+                                    <h3>Total Entries</h3>
+                                    <p>${data.summary.total_entries}</p>
+                                </div>
+                                <div class="stat-card">
+                                    <h3>Days Tracked</h3>
+                                    <p>${data.summary.unique_days}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="insights-section">
+                                <h3>🔍 AI Insights</h3>
+                                <p>${data.summary.insights}</p>
+                            </div>
+                            
+                            <div class="insights-section">
+                                <h3>💡 Improvement Strategy</h3>
+                                <p>${data.summary.improvement_strategy}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Charts
+                if (data.charts && data.charts.length > 0) {
+                    html += '<div class="charts-grid">';
+                    data.charts.forEach(chart => {
+                        html += `
+                            <div class="chart-card">
+                                <h3>${chart.title}</h3>
+                                <p>${chart.description}</p>
+                                <img src="data:image/png;base64,${chart.image}" alt="${chart.title}">
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="empty-state"><h3>No charts generated</h3></div>';
+                }
+
+                contentDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error generating dashboard:', error);
+                contentDiv.innerHTML = '<div class="empty-state"><h3>⚠️ Error generating dashboard</h3></div>';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Dashboard';
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                document.getElementById('tableCount').textContent = data.total_tables;
+                document.getElementById('apiCount').textContent = data.api_calls;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isLoading) {
+                sendMessage();
+            }
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImageData = e.target.result;
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').classList.add('show');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            selectedImageData = null;
+            document.getElementById('imagePreview').classList.remove('show');
+            document.getElementById('imageInput').value = '';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if ((!message && !selectedImageData) || isLoading) return;
+            if (!message && selectedImageData) {
+                alert('Please add a message describing what you want to do with the image');
+                return;
+            }
+
+            isLoading = true;
+            input.value = '';
+            
+            const messagesDiv = document.getElementById('messages');
+            const sendButton = document.getElementById('sendButton');
+            
+            // Add user message with image if present
+            addMessage('user', message, selectedImageData);
+            
+            // Clear image preview
+            const hasImage = selectedImageData !== null;
+            const imageToSend = selectedImageData;
+            removeImage();
+            
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message message-assistant';
+            typingIndicator.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingIndicator);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Disable send button
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const payload = { message: message };
+                if (imageToSend) {
+                    payload.image = imageToSend;
+                }
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                // Add assistant message
+                addMessage('assistant', data.response, null, data.chart);
+                
+                // Update stats
+                document.getElementById('apiCount').textContent = data.api_calls;
+                updateStats();
+                
+            } catch (error) {
+                typingIndicator.remove();
+                addMessage('assistant', '❌ Sorry, there was an error processing your request. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                isLoading = false;
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+                input.focus();
+            }
+        }
+
+        function addMessage(role, content, imageData = null, chart = null) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${role}`;
+            
+            let messageHTML = '';
+            
+            if (imageData && role === 'user') {
+                messageHTML += `
+                    <div class="image-preview">
+                        <img src="${imageData}" alt="Uploaded image">
+                    </div>
+                `;
+            }
+            
+            // Use innerHTML to render HTML tags (like <strong>)
+            messageHTML += `<div class="message-content">${content}</div>`;
+            
+            if (chart) {
+                messageHTML += `
+                    <div class="chart-container">
+                        <img src="data:image/png;base64,${chart}" alt="Chart">
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = messageHTML;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        if (document.getElementById('chatPage').classList.contains('active')) {
+            updateStats();
+        }
+    </script>
+</body>
+</html>
