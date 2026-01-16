@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from textwrap import dedent
 from dotenv import load_dotenv
 from typing import Dict, List, Optional
+from flask_cors import CORS
 
 # Groq for vision and dashboard
 from groq import Groq
@@ -33,6 +34,7 @@ import matplotlib.pyplot as plt
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = os.urandom(24)
 
 # ============================================================================
